@@ -141,9 +141,6 @@ public class PmChair extends PluginBase implements Listener {
 							.putLong(Entity.DATA_LEAD_HOLDER_EID, -1);
 							//.putFloat(Entity.DATA_SCALE, 0.0001f);
 					
-					System.out.println(event.getBlock().getDamage());
-					System.out.println(faces[event.getBlock().getDamage()]);
-					
 					MoveEntityPacket moveEntityPacket = new MoveEntityPacket();
 					moveEntityPacket.eid = eid;
 					moveEntityPacket.x = (float) (block.getX() + 0.5);
