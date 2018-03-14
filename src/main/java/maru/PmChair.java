@@ -60,7 +60,7 @@ public class PmChair extends PluginBase implements Listener {
 	@EventHandler
 	public void onTouch(PlayerInteractEvent event){
 		Player player = event.getPlayer();
-		if(player.isSneaking() || event.getAction() != PlayerInteractEvent.RIGHT_CLICK_BLOCK){
+		if(player.isSneaking() || event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK){
 			return;
 		}
 		
