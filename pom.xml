@@ -6,16 +6,6 @@
 	<artifactId>pmchair</artifactId>
 	<version>2.0</version>
 	<packaging>jar</packaging>
-	
-	<repositories>
-		<repository>
-			<id>regularbox</id>
-			<url>http://ci.regularbox.com/plugin/repository/everything/</url>
-		</repository>
-	</repositories>
-
-	<name>PmChair</name>
-	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -57,9 +47,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>cn.nukkit</groupId>
-			<artifactId>nukkit</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<scope>provided</scope>
+			<artifactId>Nukkit</artifactId>
+            <version>SuomiCraftPE</version>
+            <optional>false</optional>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/Nukkit-SuomiCraftPE.jar</systemPath>
 		</dependency>
 	</dependencies>
 </project>

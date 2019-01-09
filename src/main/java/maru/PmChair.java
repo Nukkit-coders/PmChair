@@ -25,47 +25,47 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 
 public class PmChair extends PluginBase implements Listener {
-	
+
 	private Map<String, Long> onChair = new HashMap<>();
 	private Map<String, Long> doubleTap = new HashMap<>();
 	private Map<String, Long> tagblock = new HashMap<>();
 	private Map<String, Object> messages;
 	
 	public static final int m_version = 1;
-	
+
 	@Override
 	public void onEnable() {
 		this.getServer().getPluginManager().registerEvents(this, this);
 		this.loadMessage();
 	}
-	
+
 	public void loadMessage() {
 		this.saveResource("messages.yml");
 		this.messages = new Config(new File(this.getDataFolder(), "messages.yml"), Config.YAML).getAll();
 		this.updateMessage();
 	}
-	
+
 	public void updateMessage() {
 		if ((int) this.messages.get("m_version") < m_version) {
 			this.saveResource("messages.yml", true);
 			new Config(new File(this.getDataFolder(), "messages.yml"), Config.YAML).getAll().forEach((k, v) -> this.messages.put(k, (String) v));
 		}
 	}
-	
+
 	public String get(String m) {
 		return (String) this.messages.get(this.messages.get("default-language") + "-" + m);
 	}
-	
+
 	@EventHandler
 	public void onTouch(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		if (player.isSneaking() || event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
 			return;
 		}
-		
+
 		String name = player.getName().toLowerCase();
 		Block block = event.getBlock();
-		
+
 		if (!this.onChair.containsKey(name)) {
 			if (block instanceof BlockStairs) {
 				if (!this.doubleTap.containsKey(name)) {
@@ -90,13 +90,13 @@ public class PmChair extends PluginBase implements Listener {
 					addTagblockPacket.y = (float) (block.getY() + 0.3);
 					addTagblockPacket.z = (float) (block.getZ() + 0.5);
 					addTagblockPacket.type = 84;
-					
+
 					long flags = 0;
 					flags |= 1 << Entity.DATA_FLAG_CAN_SHOW_NAMETAG;
 					flags |= 1 << Entity.DATA_FLAG_INVISIBLE;
 					flags |= 1 << Entity.DATA_FLAG_NO_AI;
 					flags |= 1 << Entity.DATA_FLAG_ALWAYS_SHOW_NAMETAG;
-					
+
 					addTagblockPacket.metadata = new EntityMetadata()
 							.putLong(Entity.DATA_FLAGS, flags)
 							.putShort(Entity.DATA_AIR, 400)
@@ -104,15 +104,15 @@ public class PmChair extends PluginBase implements Listener {
 							.putString(Entity.DATA_NAMETAG, TextFormat.AQUA + this.get("tagblock-message"))
 							.putLong(Entity.DATA_LEAD_HOLDER_EID, -1)
 							.putFloat(Entity.DATA_SCALE, 0.0001f);
-					
+
 					MoveEntityAbsolutePacket moveTagblockPacket = new MoveEntityAbsolutePacket();
 					moveTagblockPacket.eid = eid;
 					moveTagblockPacket.x = (float) (block.getX() + 0.5);
 					moveTagblockPacket.y = (float) (block.getY() + 0.7);
 					moveTagblockPacket.z = (float) (block.getZ() + 0.5);
-					
+
 					int[] faces = new int[]{90, 270, 180, 0, 90, 270, 180, 0};
-					
+
 					AddEntityPacket addEntityPacket = new AddEntityPacket();
 					eid = Entity.entityCount++;
 					this.onChair.put(name, eid);
@@ -127,20 +127,20 @@ public class PmChair extends PluginBase implements Listener {
 					addEntityPacket.y = (float) (block.getY() + 1.6);
 					addEntityPacket.z = (float) (block.getZ() + 0.5);
 					addEntityPacket.type = 84;
-					
+
 					flags = 0;
 					flags |= 1 << Entity.DATA_FLAG_CAN_SHOW_NAMETAG;
 					flags |= 1 << Entity.DATA_FLAG_INVISIBLE;
 					flags |= 1 << Entity.DATA_FLAG_NO_AI;
 					flags |= 1 << Entity.DATA_FLAG_ALWAYS_SHOW_NAMETAG;
-					
+
 					addEntityPacket.metadata = new EntityMetadata()
 							.putLong(Entity.DATA_FLAGS, flags)
 							.putShort(Entity.DATA_AIR, 400)
 							.putShort(Entity.DATA_MAX_AIR, 400)
 							.putLong(Entity.DATA_LEAD_HOLDER_EID, -1)
 							.putFloat(Entity.DATA_SCALE, 0.0001f);
-					
+
 					MoveEntityAbsolutePacket moveEntityPacket = new MoveEntityAbsolutePacket();
 					moveEntityPacket.eid = eid;
 					moveEntityPacket.x = (float) (block.getX() + 0.5);
@@ -149,14 +149,22 @@ public class PmChair extends PluginBase implements Listener {
 					moveEntityPacket.yaw = faces[event.getBlock().getDamage()];
 					moveEntityPacket.headYaw = faces[event.getBlock().getDamage()];
 					moveEntityPacket.pitch = 0;
-					
+
 					SetEntityLinkPacket setEntityLinkPacket = new SetEntityLinkPacket();
 					setEntityLinkPacket.rider = eid;
 					setEntityLinkPacket.riding = player.getId();
 					setEntityLinkPacket.type = SetEntityLinkPacket.TYPE_PASSENGER;
-					
+
+					for (Player pl : getServer().getOnlinePlayers().values()) {
+						try {
+							Class.forName("cn.nukkit.utils.EntityUtils");
+							addEntityPacket.protocol = pl.protocol;
+						} catch (Exception e) {}
+
+                        pl.dataPacket(addEntityPacket);
+                    }
+
 					this.getServer().getOnlinePlayers().values().forEach((target) -> {
-						target.dataPacket(addEntityPacket);
 						target.dataPacket(moveEntityPacket);
 						target.dataPacket(addTagblockPacket);
 						target.dataPacket(moveTagblockPacket);
@@ -164,7 +172,7 @@ public class PmChair extends PluginBase implements Listener {
 							target.dataPacket(setEntityLinkPacket);
 						}
 					});
-					
+
 					player.dataPacket(setEntityLinkPacket);
 					player.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_RIDING, true);
 					this.doubleTap.remove(name);
@@ -203,7 +211,7 @@ public class PmChair extends PluginBase implements Listener {
 			}
 		}
 	}
-	
+
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		String name = event.getPlayer().getName().toLowerCase();
