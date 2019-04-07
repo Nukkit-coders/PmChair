@@ -146,8 +146,8 @@ public class PmChair extends PluginBase implements Listener {
                     moveEntityPacket.pitch = 0;
 
                     SetEntityLinkPacket setEntityLinkPacket = new SetEntityLinkPacket();
-                    setEntityLinkPacket.riderUniqueId = eid;
-                    setEntityLinkPacket.vehicleUniqueId = player.getId();
+                    setEntityLinkPacket.vehicleUniqueId = eid;
+                    setEntityLinkPacket.riderUniqueId = player.getId();
                     setEntityLinkPacket.type = SetEntityLinkPacket.TYPE_PASSENGER;
 
                     for (Player pl : getServer().getOnlinePlayers().values()) {
