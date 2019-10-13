@@ -3,6 +3,8 @@ package maru;
 import cn.nukkit.Player;
 import cn.nukkit.block.Block;
 import cn.nukkit.block.BlockStairs;
+import cn.nukkit.command.Command;
+import cn.nukkit.command.CommandSender;
 import cn.nukkit.entity.Entity;
 import cn.nukkit.entity.data.EntityMetadata;
 import cn.nukkit.event.EventHandler;
@@ -16,7 +18,9 @@ import cn.nukkit.utils.Config;
 import cn.nukkit.utils.TextFormat;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PmChair extends PluginBase implements Listener {
@@ -25,6 +29,7 @@ public class PmChair extends PluginBase implements Listener {
     private Map<String, Long> doubleTap = new HashMap<>();
     private Map<String, Long> tagblock = new HashMap<>();
     private Map<String, Object> messages;
+    private List<String> disabled = new ArrayList<>();
 
     private static final int m_version = 1;
 
@@ -54,7 +59,7 @@ public class PmChair extends PluginBase implements Listener {
     @EventHandler
     public void onTouch(PlayerInteractEvent event) {
         Player player = event.getPlayer();
-        if (player.isSneaking() || event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK) {
+        if (player.isSneaking() || event.getAction() != PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK || disabled.contains(player.getName())) {
             return;
         }
 
@@ -203,6 +208,7 @@ public class PmChair extends PluginBase implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        disabled.remove(event.getPlayer().getName());
         String name = event.getPlayer().getName().toLowerCase();
         if (!this.onChair.containsKey(name)) {
             return;
@@ -215,5 +221,32 @@ public class PmChair extends PluginBase implements Listener {
             p.dataPacket(removeEntityPacket);
             p.dataPacket(removeTagblockPacket);
         });
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equalsIgnoreCase("chair")) {
+            if (!(sender instanceof Player)) {
+                return true;
+            }
+
+            if (args.length == 0) {
+                return false;
+            }
+
+            if ("off".equals(args[0])) {
+                disabled.add(sender.getName());
+                sender.sendMessage("\u00A7aDisabled");
+            } else if ("on".equals(args[0])) {
+                disabled.remove(sender.getName());
+                sender.sendMessage("\u00A7aEnabled");
+            } else {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }

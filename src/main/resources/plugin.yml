@@ -2,4 +2,15 @@ name: PmChair
 main: maru.PmChair
 author: maru, PetteriM1
 version: "${pom.version}"
-api: ["1.0.8"]
+api: ["1.0.9"]
+
+commands:
+  chair:
+    usage: "/chair <on|off>"
+    description: "Enable/disable chairs"
+    permission: "chair.toggle"
+
+permissions:
+  chair.toggle:
+    default: true
+    description: "Enable/disable chairs"
