@@ -31,6 +31,8 @@ public class PmChair extends PluginBase implements Listener {
     private Map<String, Object> messages;
     private List<String> disabled = new ArrayList<>();
 
+    private static final int[] faces = new int[]{90, 270, 180, 0, 90, 270, 180, 0};
+
     private static final int m_version = 1;
 
     @Override
@@ -75,7 +77,6 @@ public class PmChair extends PluginBase implements Listener {
                 }
 
                 if (System.currentTimeMillis() - this.doubleTap.get(name) < 500) {
-
                     AddEntityPacket addTagblockPacket = new AddEntityPacket();
                     long eid = Entity.entityCount++;
                     this.tagblock.put(name, eid);
@@ -110,8 +111,6 @@ public class PmChair extends PluginBase implements Listener {
                     moveTagblockPacket.x = (float) (block.getX() + 0.5);
                     moveTagblockPacket.y = (float) (block.getY() + 0.7);
                     moveTagblockPacket.z = (float) (block.getZ() + 0.5);
-
-                    int[] faces = new int[]{90, 270, 180, 0, 90, 270, 180, 0};
 
                     AddEntityPacket addEntityPacket = new AddEntityPacket();
                     eid = Entity.entityCount++;
@@ -155,20 +154,14 @@ public class PmChair extends PluginBase implements Listener {
                     setEntityLinkPacket.riderUniqueId = player.getId();
                     setEntityLinkPacket.type = SetEntityLinkPacket.TYPE_PASSENGER;
 
-                    for (Player pl : getServer().getOnlinePlayers().values()) {
-                        pl.dataPacket(addEntityPacket);
-                    }
-
                     this.getServer().getOnlinePlayers().values().forEach((target) -> {
+                        target.dataPacket(addEntityPacket);
                         target.dataPacket(moveEntityPacket);
                         target.dataPacket(addTagblockPacket);
                         target.dataPacket(moveTagblockPacket);
-                        if (target != player) {
-                            target.dataPacket(setEntityLinkPacket);
-                        }
+                        target.dataPacket(setEntityLinkPacket);
                     });
 
-                    player.dataPacket(setEntityLinkPacket);
                     player.setDataFlag(Entity.DATA_FLAGS, Entity.DATA_FLAG_RIDING, true);
                     this.doubleTap.remove(name);
                 } else {
