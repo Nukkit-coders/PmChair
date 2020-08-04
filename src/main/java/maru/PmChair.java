@@ -70,6 +70,8 @@ public class PmChair extends PluginBase implements Listener {
 
         if (!this.onChair.containsKey(name)) {
             if (block instanceof BlockStairs) {
+                if ((block.getDamage() & 4) != 0 || block.up().isSolid()) return;
+
                 if (!this.doubleTap.containsKey(name)) {
                     this.doubleTap.put(name, System.currentTimeMillis());
                     player.sendPopup(TextFormat.RED + this.get("touch-popup"));
