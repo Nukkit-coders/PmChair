@@ -1,4 +1,6 @@
-m_version: 1
+m_version: 2
 
-eng-touch-popup: Touch again to sit on the stairs
-eng-tagblock-message: ""
+touch-stairs-popup: Double tap to sit on the stairs
+
+command-enabled: Double tap to sit on the stairs enabled
+command-disabled: Double tap to sit on the stairs disabled
